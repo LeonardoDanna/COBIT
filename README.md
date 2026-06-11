@@ -24,3 +24,8 @@ Para usar:
 ## Documentação
 
 Para detalhes sobre a arquitetura, o fluxo do jogo, as fórmulas de pontuação e os prompts usados, veja [FUNCIONAMENTO.md](FUNCIONAMENTO.md).
+
+<img width="949" height="699" alt="image" src="https://github.com/user-attachments/assets/2ad37cec-0194-4bd6-981f-bee8f5753d5b" />
+<img width="1448" height="868" alt="image" src="https://github.com/user-attachments/assets/e5538b55-bb77-45f9-aa5b-c1fc1eb7b76e" />
+<img width="1447" height="865" alt="image" src="https://github.com/user-attachments/assets/07cd49ec-79cf-4b3d-9dc2-21330ed9e220" />
+<img width="1449" height="868" alt="image" src="https://github.com/user-attachments/assets/4718f995-0af3-4407-a187-3e62888490d8" />
