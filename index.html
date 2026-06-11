@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banca COBIT 5 — Simulador de Prova Oral</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --petrol:#0E3A43;
+    --petrol-deep:#082A31;
+    --paper:#F7F5EF;
+    --card:#FFFFFF;
+    --ink:#1B2A2E;
+    --muted:#5E6E72;
+    --amber:#D9A441;
+    --amber-soft:#F4E5C3;
+    --green:#2E7D5B;
+    --green-soft:#DDF0E6;
+    --red:#C24A3A;
+    --red-soft:#F7E0DC;
+    --line:#E3DFD4;
+    --radius:14px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    line-height:1.55;
+  }
+  .topbar{
+    background:var(--petrol);
+    color:#EAF2F0;
+    padding:18px 22px 16px;
+    border-bottom:4px solid var(--amber);
+  }
+  .topbar-inner{max-width:880px;margin:0 auto;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between}
+  .brand h1{
+    font-family:'Fraunces',Georgia,serif;
+    font-weight:900;font-size:1.45rem;letter-spacing:.01em;
+  }
+  .brand p{font-size:.75rem;opacity:.75;text-transform:uppercase;letter-spacing:.14em;margin-top:2px}
+  .stats{display:flex;gap:10px;flex-wrap:wrap}
+  .stat{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:10px;padding:7px 12px;min-width:84px;text-align:center;
+  }
+  .stat b{display:block;font-size:1.05rem;color:var(--amber)}
+  .stat span{font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;opacity:.8}
+  .rankline{max-width:880px;margin:10px auto 0;font-size:.78rem;display:flex;align-items:center;gap:10px}
+  .rankname{font-weight:700;color:var(--amber)}
+  .xpbar{flex:1;height:8px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;min-width:120px}
+  .xpfill{height:100%;background:linear-gradient(90deg,var(--amber),#F0C572);width:0%;transition:width .6s ease}
+  .nextrank{opacity:.75}
+
+  main{max-width:880px;margin:0 auto;padding:26px 18px 70px}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 28px;
+    box-shadow:0 2px 10px rgba(14,58,67,.06);
+    margin-bottom:22px;
+  }
+  .case-tag{
+    display:inline-flex;gap:8px;align-items:center;
+    font-size:.7rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--petrol);background:var(--amber-soft);
+    padding:5px 12px;border-radius:99px;margin-bottom:14px;
+  }
+  .case-title{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.5rem;margin-bottom:4px;color:var(--petrol-deep)}
+  .case-company{font-size:.85rem;color:var(--muted);margin-bottom:16px}
+  .case-text{white-space:pre-wrap;font-size:.97rem}
+  .difficulty{display:inline-flex;gap:3px;margin-left:8px}
+  .pip{width:7px;height:7px;border-radius:50%;background:#D8D2C2}
+  .pip.on{background:var(--red)}
+
+  h3.section{font-family:'Fraunces',Georgia,serif;font-size:1.05rem;margin:22px 0 10px;color:var(--petrol-deep)}
+  .proc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  @media(max-width:640px){.proc-grid{grid-template-columns:1fr}}
+  .proc{
+    display:flex;gap:10px;align-items:flex-start;
+    border:1.5px solid var(--line);border-radius:10px;
+    padding:11px 13px;cursor:pointer;background:#FCFBF7;
+    transition:border-color .15s, background .15s;
+    font-size:.88rem;user-select:none;
+  }
+  .proc:hover{border-color:var(--petrol)}
+  .proc.sel{border-color:var(--petrol);background:#EDF3F2;box-shadow:inset 0 0 0 1px var(--petrol)}
+  .proc input{margin-top:3px;accent-color:var(--petrol)}
+  .proc b{color:var(--petrol-deep)}
+  .limit-note{font-size:.78rem;color:var(--muted);margin:8px 0 0}
+
+  textarea{
+    width:100%;min-height:130px;margin-top:8px;
+    border:1.5px solid var(--line);border-radius:10px;
+    padding:12px 14px;font:inherit;font-size:.93rem;resize:vertical;background:#FCFBF7;
+  }
+  textarea:focus{outline:2px solid var(--petrol);border-color:var(--petrol)}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--petrol);color:#fff;border:none;cursor:pointer;
+    font:inherit;font-weight:600;font-size:.95rem;
+    padding:13px 26px;border-radius:10px;margin-top:18px;
+    transition:background .15s, transform .1s;
+  }
+  .btn:hover:not(:disabled){background:var(--petrol-deep)}
+  .btn:active:not(:disabled){transform:scale(.98)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.amber{background:var(--amber);color:var(--petrol-deep)}
+  .btn.amber:hover:not(:disabled){background:#C9932F}
+
+  .loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:46px 0;color:var(--muted)}
+  .spinner{width:38px;height:38px;border:4px solid var(--line);border-top-color:var(--petrol);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .verdict{border-left:5px solid;border-radius:8px;padding:13px 16px;margin-bottom:11px;font-size:.9rem;background:#FCFBF7}
+  .verdict.correto{border-color:var(--green);background:var(--green-soft)}
+  .verdict.parcial{border-color:var(--amber);background:var(--amber-soft)}
+  .verdict.incorreto{border-color:var(--red);background:var(--red-soft)}
+  .verdict .vh{font-weight:700;margin-bottom:3px}
+  .badge-v{font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:middle}
+  .badge-v.correto{background:var(--green);color:#fff}
+  .badge-v.parcial{background:var(--amber);color:var(--petrol-deep)}
+  .badge-v.incorreto{background:var(--red);color:#fff}
+
+  .stamp-row{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin:6px 0 18px}
+  .stamp{
+    font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:2.3rem;
+    color:var(--red);border:4px solid var(--red);border-radius:12px;
+    padding:6px 22px;transform:rotate(-4deg);
+    animation:stampIn .45s cubic-bezier(.2,1.6,.4,1) both;
+    background:rgba(255,255,255,.6);
+  }
+  .stamp.good{color:var(--green);border-color:var(--green)}
+  .stamp.mid{color:var(--amber);border-color:#B8862C}
+  @keyframes stampIn{from{transform:rotate(-4deg) scale(2.2);opacity:0}to{transform:rotate(-4deg) scale(1);opacity:1}}
+  @media (prefers-reduced-motion: reduce){.stamp{animation:none}.xpfill{transition:none}}
+  .gain{font-size:.95rem}
+  .gain b{color:var(--petrol)}
+  .gain .up{color:var(--green);font-weight:700}
+
+  .ideal{background:#EDF3F2;border:1px solid #CFDEDC;border-radius:10px;padding:14px 16px;margin-bottom:10px;font-size:.9rem}
+  .kw{background:#FFF;border:1px dashed var(--amber);border-radius:10px;padding:13px 16px;font-size:.88rem;margin-bottom:8px}
+  .kw em{font-style:normal;background:var(--amber-soft);padding:1px 5px;border-radius:4px;font-weight:600}
+  .coment{font-size:.92rem;color:var(--ink);background:#FCFBF7;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:14px}
+
+  .badges-area{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .badge-chip{
+    font-size:.74rem;font-weight:600;background:var(--petrol);color:var(--amber);
+    padding:5px 12px;border-radius:99px;display:inline-flex;gap:6px;align-items:center;
+  }
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--petrol-deep);color:#fff;padding:13px 22px;border-radius:12px;
+    box-shadow:0 8px 30px rgba(0,0,0,.3);font-size:.9rem;z-index:50;
+    border-left:5px solid var(--amber);max-width:90vw;
+    animation:toastIn .3s ease both;
+  }
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+  .error-box{background:var(--red-soft);border:1px solid var(--red);border-radius:10px;padding:14px 16px;font-size:.9rem;color:#7A2A1F}
+  .start-hero{text-align:center;padding:40px 10px}
+  .start-hero h2{font-family:'Fraunces',Georgia,serif;font-size:2rem;font-weight:900;color:var(--petrol-deep);margin-bottom:10px}
+  .start-hero p{color:var(--muted);max-width:520px;margin:0 auto 8px}
+  .ranks-table{font-size:.82rem;margin:18px auto 0;border-collapse:collapse}
+  .ranks-table td{padding:4px 14px;border-bottom:1px solid var(--line)}
+  .ranks-table td:first-child{font-weight:600;color:var(--petrol)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <h1>Banca COBIT 5</h1>
+      <p>Simulador de prova oral &middot; estudo de caso</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="st-xp">0</b><span>XP</span></div>
+      <div class="stat"><b id="st-cases">0</b><span>Casos</span></div>
+      <div class="stat"><b id="st-streak">0</b><span>Sequência</span></div>
+      <div class="stat"><b id="st-best">–</b><span>Melhor nota</span></div>
+    </div>
+  </div>
+  <div class="rankline">
+    <span class="rankname" id="rank-name">Estagiário de TI</span>
+    <div class="xpbar"><div class="xpfill" id="xp-fill"></div></div>
+    <span class="nextrank" id="rank-next"></span>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<script>
+/* ============ COBIT 5 reference (only governance/management processes used by the game) ============ */
+const COBIT_REF = `
+APO01 Gerenciar a Estrutura de Gestão de TI | APO02 Gerenciar a Estratégia | APO03 Gerenciar Arquitetura Corporativa | APO04 Gerenciar Inovação | APO05 Gerenciar Portfólio | APO06 Gerenciar Orçamento e Custos | APO07 Gerenciar Recursos Humanos | APO08 Gerenciar Relacionamentos | APO09 Gerenciar Contratos de Prestação de Serviços (SLAs) | APO10 Gerenciar Fornecedores | APO11 Gerenciar Qualidade | APO12 Gerenciar Riscos | APO13 Gerenciar Segurança
+BAI01 Gerenciar Programas e Projetos | BAI02 Gerenciar Definição de Requisitos | BAI03 Gerenciar Identificação e Construção de Soluções | BAI04 Gerenciar Disponibilidade e Capacidade | BAI05 Gerenciar Capacitação da Mudança Organizacional | BAI06 Gerenciar Mudanças | BAI07 Gerenciar Aceitação e Transição da Mudança | BAI08 Gerenciar Conhecimento | BAI09 Gerenciar Ativos | BAI10 Gerenciar Configuração
+DSS01 Gerenciar Operações | DSS02 Gerenciar Solicitações e Incidentes de Serviço | DSS03 Gerenciar Problemas | DSS04 Gerenciar Continuidade | DSS05 Gerenciar Serviços de Segurança | DSS06 Gerenciar Controles de Processos de Negócio
+MEA01 Monitorar, Avaliar e Analisar Desempenho e Conformidade | MEA02 Monitorar, Avaliar e Analisar o Sistema de Controle Interno | MEA03 Monitorar, Avaliar e Analisar Conformidade com Requisitos Externos`;
+
+const PROC_NAMES = {
+  APO01:"Gerenciar a Estrutura de Gestão de TI",APO02:"Gerenciar a Estratégia",APO03:"Gerenciar Arquitetura Corporativa",
+  APO04:"Gerenciar Inovação",APO05:"Gerenciar Portfólio",APO06:"Gerenciar Orçamento e Custos",APO07:"Gerenciar Recursos Humanos",
+  APO08:"Gerenciar Relacionamentos",APO09:"Gerenciar Contratos de Prestação de Serviços (SLAs)",APO10:"Gerenciar Fornecedores",
+  APO11:"Gerenciar Qualidade",APO12:"Gerenciar Riscos",APO13:"Gerenciar Segurança",
+  BAI01:"Gerenciar Programas e Projetos",BAI02:"Gerenciar Definição de Requisitos",BAI03:"Gerenciar Identificação e Construção de Soluções",
+  BAI04:"Gerenciar Disponibilidade e Capacidade",BAI05:"Gerenciar Capacitação da Mudança Organizacional",BAI06:"Gerenciar Mudanças",
+  BAI07:"Gerenciar Aceitação e Transição da Mudança",BAI08:"Gerenciar Conhecimento",BAI09:"Gerenciar Ativos",BAI10:"Gerenciar Configuração",
+  DSS01:"Gerenciar Operações",DSS02:"Gerenciar Solicitações e Incidentes de Serviço",DSS03:"Gerenciar Problemas",
+  DSS04:"Gerenciar Continuidade",DSS05:"Gerenciar Serviços de Segurança",DSS06:"Gerenciar Controles de Processos de Negócio",
+  MEA01:"Monitorar, Avaliar e Analisar Desempenho e Conformidade",MEA02:"Monitorar, Avaliar e Analisar o Sistema de Controle Interno",
+  MEA03:"Monitorar, Avaliar e Analisar Conformidade com Requisitos Externos"
+};
+function fullName(cod){
+  cod = String(cod||"").trim().toUpperCase();
+  return PROC_NAMES[cod] ? cod+" — "+PROC_NAMES[cod] : cod;
+}
+
+const RANKS = [
+  {xp:0,    name:"Estagiário de TI"},
+  {xp:150,  name:"Analista Júnior"},
+  {xp:400,  name:"Analista de Governança"},
+  {xp:800,  name:"Consultor COBIT"},
+  {xp:1300, name:"Gerente de TI"},
+  {xp:1950, name:"Diretor de TI"},
+  {xp:2800, name:"CIO"}
+];
+
+const BADGE_DEFS = [
+  {id:"first",   label:"🎓 Primeiro caso",      test:s=>s.cases>=1},
+  {id:"ten",     label:"🏆 Nota 10",            test:s=>s.best>=10},
+  {id:"streak3", label:"🔥 3 na sequência",     test:s=>s.streak>=3},
+  {id:"streak5", label:"⚡ 5 na sequência",     test:s=>s.streak>=5},
+  {id:"five",    label:"📚 5 casos resolvidos", test:s=>s.cases>=5},
+  {id:"tencases",label:"🧠 10 casos resolvidos",test:s=>s.cases>=10},
+  {id:"hard",    label:"💎 Nota ≥ 8 em caso difícil", test:s=>s.hardAce===true}
+];
+
+let state = {xp:0, cases:0, streak:0, best:0, badges:[], hardAce:false, usedThemes:[]};
+let currentCase = null;
+let selected = new Set();
+
+/* ============ persistence (window.storage with fallback) ============ */
+async function loadState(){
+  try{
+    const r = await window.storage.get("cobit5-game-state");
+    if(r && r.value){ state = Object.assign(state, JSON.parse(r.value)); }
+  }catch(e){ /* first run or storage unavailable */ }
+}
+async function saveState(){
+  try{ await window.storage.set("cobit5-game-state", JSON.stringify(state)); }catch(e){}
+}
+
+/* ============ UI helpers ============ */
+const app = document.getElementById("app");
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function toast(msg){
+  const t=document.createElement("div");t.className="toast";t.innerHTML=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),4200);
+}
+function rankFor(xp){
+  let r=RANKS[0], next=null;
+  for(let i=0;i<RANKS.length;i++){ if(xp>=RANKS[i].xp){r=RANKS[i];next=RANKS[i+1]||null;} }
+  return {r,next};
+}
+function refreshHeader(){
+  document.getElementById("st-xp").textContent=state.xp;
+  document.getElementById("st-cases").textContent=state.cases;
+  document.getElementById("st-streak").textContent=state.streak;
+  document.getElementById("st-best").textContent=state.best>0?state.best.toLocaleString("pt-BR"):"–";
+  const {r,next}=rankFor(state.xp);
+  document.getElementById("rank-name").textContent=r.name;
+  const fill=document.getElementById("xp-fill");
+  if(next){
+    const pct=Math.min(100,((state.xp-r.xp)/(next.xp-r.xp))*100);
+    fill.style.width=pct+"%";
+    document.getElementById("rank-next").textContent=`${next.xp-state.xp} XP para ${next.name}`;
+  }else{
+    fill.style.width="100%";
+    document.getElementById("rank-next").textContent="Patente máxima 👑";
+  }
+}
+function difficultyLevel(){ return Math.min(5, 1+Math.floor(state.cases/2)); }
+function pips(n){ let h='<span class="difficulty">'; for(let i=1;i<=5;i++)h+=`<span class="pip ${i<=n?'on':''}"></span>`; return h+"</span>"; }
+function badgesHTML(){
+  if(!state.badges.length) return "";
+  return `<div class="badges-area">${state.badges.map(id=>{
+    const b=BADGE_DEFS.find(x=>x.id===id);return b?`<span class="badge-chip">${b.label}</span>`:"";
+  }).join("")}</div>`;
+}
+function checkBadges(){
+  const earned=[];
+  for(const b of BADGE_DEFS){
+    if(!state.badges.includes(b.id) && b.test(state)){ state.badges.push(b.id); earned.push(b.label); }
+  }
+  earned.forEach((l,i)=>setTimeout(()=>toast("Nova conquista: <b>"+l+"</b>"), 600+i*1500));
+}
+
+/* ============ Claude API ============ */
+async function askClaude(prompt){
+  const resp = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:1000,
+      messages:[{role:"user",content:prompt}]
+    })
+  });
+  const data = await resp.json();
+  const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  const clean = text.replace(/```json|```/g,"").trim();
+  const start = clean.indexOf("{"); const end = clean.lastIndexOf("}");
+  if(start<0||end<0) throw new Error("Resposta sem JSON");
+  return JSON.parse(clean.slice(start,end+1));
+}
+
+function genCasePrompt(level){
+  return `Você é um professor universitário especialista em COBIT 5 conduzindo uma prova oral em português do Brasil.
+Processos COBIT 5 válidos (use SOMENTE estes códigos e nomes):${COBIT_REF}
+
+Crie UM estudo de caso empresarial realista. Regras:
+- O aluno é o diretor da empresa do cenário.
+- Tema: TI, governança, operações, segurança, projetos, fornecedores, riscos, auditoria ou continuidade.
+- Dificuldade ${level} de 5 (1 = fácil e direto; 5 = ambíguo, com múltiplas respostas defensáveis e pistas misturadas).
+- Cenário com 90 a 150 palavras, com palavras-chave sutis que apontem para os processos corretos.
+- Liste de 6 a 9 opções de processos, misturando 2 a 3 corretos com distratores plausíveis. Explore confusões clássicas quando fizer sentido: BAI05 vs BAI06, DSS02 vs DSS03, APO12 vs DSS04, APO10 vs APO09, MEA02 vs MEA03, BAI01 vs APO05.
+- Não revele quais são os corretos.
+${state.usedThemes.length?`- NÃO repita estes temas já usados: ${state.usedThemes.join("; ")}.`:""}
+
+Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois, neste formato exato:
+{"titulo":"...","empresa":"nome e ramo da empresa","tema":"tema resumido em 4 palavras","cenario":"...","processos":[{"codigo":"APO12","nome":"Gerenciar Riscos"}]}`;
+}
+
+function evalPrompt(chosen, justification){
+  const opts = currentCase.processos.map(p=>p.codigo+" "+p.nome).join(" | ");
+  return `Você é um professor especialista em COBIT 5 avaliando a resposta de um aluno em uma prova oral (português do Brasil). Valorize o raciocínio, não seja excessivamente rígido, e considere que mais de uma resposta pode ser defensável. Explique a diferença entre processos parecidos quando houver confusão.
+
+Processos COBIT 5 válidos:${COBIT_REF}
+
+CASO (dificuldade ${currentCase.nivel}/5): ${currentCase.cenario}
+Opções apresentadas: ${opts}
+Processos escolhidos pelo aluno: ${chosen.join(", ")}
+Justificativa do aluno: """${justification}"""
+
+Avalie e responda APENAS com JSON válido, sem markdown, neste formato exato (textos curtos, 1 a 2 frases cada):
+{"avaliacoes":[{"codigo":"APO12","status":"correto|parcial|incorreto","explicacao":"..."}],
+"ideais":[{"codigo":"...","nome":"...","motivo":"..."}],
+"palavras_chave":[{"trecho":"trecho literal do cenário","processo":"código do processo que essa pista indica"}],
+"nota":8.5,
+"comentario":"feedback geral curto sobre o raciocínio do aluno"}`;
+}
+
+/* ============ screens ============ */
+function renderStart(){
+  refreshHeader();
+  app.innerHTML = `
+  <div class="card start-hero">
+    <h2>Sua banca está esperando.</h2>
+    <p>Cada caso apresenta um problema real de governança de TI. Você assume a cadeira de diretor, escolhe até 3 processos COBIT 5 e defende sua decisão. A banca avalia, dá a nota e você acumula XP até chegar a <b>CIO</b>.</p>
+    <p>Nota ≥ 7 mantém a sequência. A dificuldade sobe a cada 2 casos.</p>
+    <table class="ranks-table">${RANKS.map(r=>`<tr><td>${r.name}</td><td>${r.xp} XP</td></tr>`).join("")}</table>
+    ${badgesHTML()}
+    <button class="btn amber" onclick="startCase()">▶ ${state.cases>0?"Continuar treinamento":"Iniciar prova oral"}</button>
+  </div>`;
+}
+
+async function startCase(){
+  const level = difficultyLevel();
+  app.innerHTML = `<div class="card"><div class="loading"><div class="spinner"></div><div>A banca está redigindo o caso ${state.cases+1} (dificuldade ${level}/5)…</div></div></div>`;
+  try{
+    const c = await askClaude(genCasePrompt(level));
+    c.nivel = level;
+    currentCase = c;
+    selected = new Set();
+    if(c.tema){ state.usedThemes.push(c.tema); state.usedThemes = state.usedThemes.slice(-8); saveState(); }
+    renderCase();
+  }catch(e){
+    app.innerHTML = `<div class="card"><div class="error-box">A banca tropeçou ao gerar o caso (${esc(e.message)}). Tente novamente.</div><button class="btn" onclick="startCase()">Tentar de novo</button></div>`;
+  }
+}
+
+function renderCase(){
+  refreshHeader();
+  const c = currentCase;
+  app.innerHTML = `
+  <div class="card">
+    <span class="case-tag">Caso ${state.cases+1} ${pips(c.nivel)}</span>
+    <div class="case-title">${esc(c.titulo)}</div>
+    <div class="case-company">🏢 ${esc(c.empresa)} &middot; você é o(a) diretor(a)</div>
+    <div class="case-text">${esc(c.cenario)}</div>
+
+    <h3 class="section">Escolha até 3 processos</h3>
+    <div class="proc-grid" id="proc-grid">
+      ${c.processos.map((p,i)=>`
+        <label class="proc" id="proc-${i}">
+          <input type="checkbox" onchange="toggleProc(${i})">
+          <span><b>${esc(p.codigo)}</b> — ${esc(p.nome)}</span>
+        </label>`).join("")}
+    </div>
+    <p class="limit-note" id="limit-note">0 de 3 selecionados</p>
+
+    <h3 class="section">Sua defesa perante a banca</h3>
+    <textarea id="justif" placeholder="Marque os processos acima — eles aparecerão aqui automaticamente. Depois, escreva embaixo de cada um o porquê da escolha…"></textarea>
+    <br>
+    <button class="btn" id="send-btn" onclick="submitAnswer()" disabled>Enviar resposta à banca</button>
+  </div>`;
+}
+
+function syncJustif(){
+  const ta = document.getElementById("justif");
+  if(!ta) return;
+  // preserva o que já foi escrito sob cada cabeçalho de processo
+  const saved = {};
+  let intro = "";
+  let curKey = null;
+  ta.value.split("\n").forEach(line=>{
+    const m = line.match(/^([A-Z]{3}\d{2}) — /);
+    if(m){ curKey = m[1]; saved[curKey] = saved[curKey]||""; }
+    else if(curKey){ saved[curKey] += (saved[curKey]?"\n":"")+line; }
+    else { intro += (intro?"\n":"")+line; }
+  });
+  const blocks = [...selected].map(i=>{
+    const cod = currentCase.processos[i].codigo.toUpperCase();
+    const body = (saved[cod]||"").replace(/\s+$/,"");
+    return fullName(cod)+":\n"+(body||"");
+  });
+  ta.value = (intro.trim()? intro.trim()+"\n\n":"") + blocks.join("\n\n");
+}
+
+function toggleProc(i){
+  const box = document.querySelector(`#proc-${i} input`);
+  if(box.checked){
+    if(selected.size>=3){ box.checked=false; toast("Máximo de 3 processos."); return; }
+    selected.add(i); document.getElementById(`proc-${i}`).classList.add("sel");
+  }else{
+    selected.delete(i); document.getElementById(`proc-${i}`).classList.remove("sel");
+  }
+  document.getElementById("limit-note").textContent = `${selected.size} de 3 selecionados`;
+  document.getElementById("send-btn").disabled = selected.size===0;
+  syncJustif();
+}
+
+async function submitAnswer(){
+  const just = document.getElementById("justif").value.trim();
+  const semCabecalhos = just.split("\n").filter(l=>!/^([A-Z]{3}\d{2}) — /.test(l.trim())).join(" ").trim();
+  if(!semCabecalhos){ toast("Escreva o porquê embaixo de cada processo — a banca avalia o raciocínio."); return; }
+  const chosen = [...selected].map(i=>currentCase.processos[i].codigo);
+  app.innerHTML = `<div class="card"><div class="loading"><div class="spinner"></div><div>A banca está deliberando sua nota…</div></div></div>`;
+  try{
+    const r = await askClaude(evalPrompt(chosen, just));
+    applyResult(r, chosen);
+  }catch(e){
+    app.innerHTML = `<div class="card"><div class="error-box">Falha na avaliação (${esc(e.message)}). Sua resposta não foi perdida — tente reenviar.</div><button class="btn" onclick="retryRender('${esc(just).replace(/'/g,"&#39;")}')">Voltar ao caso</button></div>`;
+    window._lastJust = just; window._lastSel = [...selected];
+  }
+}
+function retryRender(){
+  renderCase();
+  if(window._lastSel){ window._lastSel.forEach(i=>{ const b=document.querySelector(`#proc-${i} input`); if(b){b.checked=true; toggleProc(i);} }); }
+  if(window._lastJust){ document.getElementById("justif").value = window._lastJust; }
+}
+
+function applyResult(r, chosen){
+  const nota = Math.max(0, Math.min(10, Number(r.nota)||0));
+  const mult = 1 + (currentCase.nivel-1)*0.25;
+  const streakBonus = state.streak>=2 ? 1+Math.min(state.streak,5)*0.1 : 1;
+  const gained = Math.round(nota*10*mult*streakBonus);
+
+  state.cases += 1;
+  state.xp += gained;
+  state.best = Math.max(state.best, nota);
+  if(nota>=7){ state.streak += 1; } else { state.streak = 0; }
+  if(nota>=8 && currentCase.nivel>=4) state.hardAce = true;
+  checkBadges();
+  saveState();
+  refreshHeader();
+
+  const stampClass = nota>=8?"good":(nota>=6?"mid":"");
+  const notaFmt = nota.toLocaleString("pt-BR");
+
+  app.innerHTML = `
+  <div class="card">
+    <span class="case-tag">Veredito da banca · Caso ${state.cases}</span>
+    <div class="stamp-row">
+      <div class="stamp ${stampClass}">${notaFmt} / 10</div>
+      <div class="gain">
+        <div><b>+${gained} XP</b> (dificuldade ×${mult.toLocaleString("pt-BR")}${streakBonus>1?`, sequência ×${streakBonus.toLocaleString("pt-BR",{maximumFractionDigits:2})}`:""})</div>
+        <div>${nota>=7?'<span class="up">🔥 Sequência mantida: '+state.streak+'</span>':'Sequência reiniciada — a próxima é sua.'}</div>
+      </div>
+    </div>
+
+    <h3 class="section">Avaliação das suas escolhas</h3>
+    ${(r.avaliacoes||[]).map(a=>`
+      <div class="verdict ${esc(a.status)}">
+        <div class="vh">${esc(fullName(a.codigo))} <span class="badge-v ${esc(a.status)}">${esc(a.status)}</span></div>
+        ${esc(a.explicacao)}
+      </div>`).join("")}
+
+    <h3 class="section">Processos mais adequados</h3>
+    ${(r.ideais||[]).map(p=>`<div class="ideal"><b>${esc(fullName(p.codigo))}</b><br>${esc(p.motivo)}</div>`).join("")}
+
+    <h3 class="section">Palavras-chave do cenário</h3>
+    ${(r.palavras_chave||[]).map(k=>`<div class="kw">“<em>${esc(k.trecho)}</em>” → <b>${esc(fullName(k.processo))}</b></div>`).join("")}
+
+    ${r.comentario?`<div class="coment">🎓 <b>Comentário da banca:</b> ${esc(r.comentario)}</div>`:""}
+    ${badgesHTML()}
+
+    <button class="btn amber" onclick="startCase()">Próximo caso → dificuldade ${difficultyLevel()}/5</button>
+    <button class="btn" style="background:transparent;color:var(--petrol);border:1.5px solid var(--petrol)" onclick="renderStart()">Painel</button>
+  </div>`;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ============ boot ============ */
+(async function(){
+  await loadState();
+  renderStart();
+})();
+</script>
+</body>
+</html>
