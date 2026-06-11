@@ -303,19 +303,9 @@ function checkBadges(){
   earned.forEach((l,i)=>setTimeout(()=>toast("Nova conquista: <b>"+l+"</b>"), 600+i*1500));
 }
 
-/* ============ Claude API ============ */
+/* ============ Claude API (ambiente de Artifacts do Claude.ai) ============ */
 async function askClaude(prompt){
-  const resp = await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      model:"claude-sonnet-4-20250514",
-      max_tokens:1000,
-      messages:[{role:"user",content:prompt}]
-    })
-  });
-  const data = await resp.json();
-  const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  const text = await window.claude.complete(prompt);
   const clean = text.replace(/```json|```/g,"").trim();
   const start = clean.indexOf("{"); const end = clean.lastIndexOf("}");
   if(start<0||end<0) throw new Error("Resposta sem JSON");
@@ -456,10 +446,10 @@ async function submitAnswer(){
   app.innerHTML = `<div class="card"><div class="loading"><div class="spinner"></div><div>A banca está deliberando sua nota…</div></div></div>`;
   try{
     const r = await askClaude(evalPrompt(chosen, just));
-    applyResult(r, chosen);
+    applyResult(r);
   }catch(e){
-    app.innerHTML = `<div class="card"><div class="error-box">Falha na avaliação (${esc(e.message)}). Sua resposta não foi perdida — tente reenviar.</div><button class="btn" onclick="retryRender('${esc(just).replace(/'/g,"&#39;")}')">Voltar ao caso</button></div>`;
     window._lastJust = just; window._lastSel = [...selected];
+    app.innerHTML = `<div class="card"><div class="error-box">Falha na avaliação (${esc(e.message)}). Sua resposta não foi perdida — tente reenviar.</div><button class="btn" onclick="retryRender()">Voltar ao caso</button></div>`;
   }
 }
 function retryRender(){
@@ -468,8 +458,12 @@ function retryRender(){
   if(window._lastJust){ document.getElementById("justif").value = window._lastJust; }
 }
 
-function applyResult(r, chosen){
-  const nota = Math.max(0, Math.min(10, Number(r.nota)||0));
+function toScore(v){
+  const n = Number(String(v??"").replace(",","."));
+  return Number.isFinite(n) ? Math.max(0, Math.min(10, n)) : 0;
+}
+function applyResult(r){
+  const nota = toScore(r.nota);
   const mult = 1 + (currentCase.nivel-1)*0.25;
   const streakBonus = state.streak>=2 ? 1+Math.min(state.streak,5)*0.1 : 1;
   const gained = Math.round(nota*10*mult*streakBonus);
